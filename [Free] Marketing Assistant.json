@@ -1,0 +1,1101 @@
+{
+  "name": "[Free] Marketing Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -860,
+        -1880
+      ],
+      "id": "5028baab-e530-47ac-be3f-7580c411c554",
+      "name": "Telegram Trigger",
+      "webhookId": "e39bf58a-20a1-4027-aead-669b9b21d647",
+      "credentials": {
+        "telegramApi": {
+          "id": "z13XcjtVbGlFVyil",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=yt-{{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -220,
+        -980
+      ],
+      "id": "8e4b7d57-7bb4-479b-8a55-ee43b7a1cc33",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.user_message }}",
+        "options": {
+          "systemMessage": "You are MarketingAI, an autonomous marketing agent skilled in copywriting, storytelling, and video & image generation. You can answer any user query and, when needed, create videos. After each video generation, save its metadata in Google Sheets.\n\nPro Tip:\n- When you’re told to reframe videos first and then combine them, make sure you use the reframed versions for the final combination."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        240,
+        -1900
+      ],
+      "id": "34abb3d9-be62-4372-a0b5-6bcca02e966b",
+      "name": "Ultimate Marketing AI"
+    },
+    {
+      "parameters": {
+        "content": "## Memory",
+        "height": 300,
+        "width": 660,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        -1100
+      ],
+      "id": "484b9f6d-6b87-48b7-9752-eae33f3953a0",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Images",
+        "height": 300,
+        "width": 160,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        380,
+        -1100
+      ],
+      "id": "61975c27-242b-4a2a-916f-1988ef617617",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in Google Sheets.\n\nIn this document you can find all videos generated with AI (veo3).",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1qRJ0pXfpSn0g0SVOlIvNAYdNNNRFCGJKQNAYFxNXedg/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "videos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qRJ0pXfpSn0g0SVOlIvNAYdNNNRFCGJKQNAYFxNXedg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        200,
+        -980
+      ],
+      "id": "ac07c362-ddf1-4b18-aafd-56254edc6fb7",
+      "name": "AI Videos",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8APu95pmPCpPW3cw",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o4-mini",
+          "mode": "list",
+          "cachedResultName": "o4-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        -1260
+      ],
+      "id": "e41c4b6d-f517-47bd-a7f7-31bcdb290956",
+      "name": "BRAIN: ChatGPT",
+      "credentials": {
+        "openAiApi": {
+          "id": "bhv1JmqFtUYcn90G",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"type\": \"message\",\n    \"reply\": \"adjust message\",\n    \"file_url\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        980,
+        -1680
+      ],
+      "id": "3c6c3b1f-dd63-4fb2-a590-b0c4362eb3ba",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        740,
+        -1680
+      ],
+      "id": "5eef8c0e-3011-42eb-a548-45726b41a5dd",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bhv1JmqFtUYcn90G",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.type }}",
+                    "rightValue": "video",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f7df44d4-c540-45e4-ad15-8819dbf0316e"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "video"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4d3108de-1ed5-4ce7-b9ad-989b8679878a",
+                    "leftValue": "={{ $json.output.type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "3fe53d15-a0cd-41ae-8aa6-0f0cb579d22e",
+                    "leftValue": "={{ $json.output.type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1080,
+        -1900
+      ],
+      "id": "ee04d80c-7367-4052-b2f0-906236f1aed1",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "file": "={{ $json.output.file_url }}",
+        "additionalFields": {
+          "caption": "="
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1360,
+        -2080
+      ],
+      "id": "7c5dc76a-00a8-4d55-b5c9-a7f4f1857591",
+      "name": "Send a video",
+      "webhookId": "f9293865-e7a3-4ae5-92d0-fee4b7c54bc7",
+      "credentials": {
+        "telegramApi": {
+          "id": "z13XcjtVbGlFVyil",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('Ultimate Marketing AI').item.json.output.replace(/([_*[\\]()~`>#+=|{}.!-])/g, '\\\\$1') }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1540,
+        -2080
+      ],
+      "id": "cd42c158-d86b-400d-8298-8fe3ed2d491f",
+      "name": "Send a text message",
+      "webhookId": "53293d34-2719-4a31-b751-8e374e61dba3",
+      "credentials": {
+        "telegramApi": {
+          "id": "z13XcjtVbGlFVyil",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in Google Sheets.\n\nIn this document you can find all images generated with AI.",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1qRJ0pXfpSn0g0SVOlIvNAYdNNNRFCGJKQNAYFxNXedg/edit?gid=916064660#gid=916064660",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 916064660,
+          "mode": "list",
+          "cachedResultName": "images",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qRJ0pXfpSn0g0SVOlIvNAYdNNNRFCGJKQNAYFxNXedg/edit#gid=916064660"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -20,
+        -980
+      ],
+      "id": "b8fcf386-1e4a-4e1a-8861-325d2e4c331f",
+      "name": "Images",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8APu95pmPCpPW3cw",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "file": "={{ $json.output.file_url }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1360,
+        -1900
+      ],
+      "id": "a3aac1f7-6ab1-482e-9d3d-dfbb7660b810",
+      "name": "Send a photo message",
+      "webhookId": "21c21bd5-2740-469d-84c1-9f6ea08e45c3",
+      "credentials": {
+        "telegramApi": {
+          "id": "z13XcjtVbGlFVyil",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('Ultimate Marketing AI').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1540,
+        -1900
+      ],
+      "id": "328fe8af-9ed3-4bb5-b20b-d8294293f6d2",
+      "name": "Send a text message1",
+      "webhookId": "6874a3b8-b578-4697-b90b-2036349e555c",
+      "credentials": {
+        "telegramApi": {
+          "id": "z13XcjtVbGlFVyil",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Brain",
+        "height": 220,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        -1340
+      ],
+      "id": "9ea2e295-f56b-4b78-ac10-18162b248e41",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "a123",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "3d995fa5-e9dd-4e8c-8131-2c4defff79ba"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "68b1f2dd-f4eb-4d96-a8c5-f386ec613517",
+                    "leftValue": "={{ $json.message.voice.mime_type }}",
+                    "rightValue": "audio/ogg",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -640,
+        -1880
+      ],
+      "id": "633154a5-10f2-483b-abd0-aec10d303347",
+      "name": "Message Type"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -280,
+        -1740
+      ],
+      "id": "cb393ee6-62bc-4080-a8fa-c2b5a14bcc65",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "bhv1JmqFtUYcn90G",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        -1740
+      ],
+      "id": "b1b62e78-23d4-4d1d-833c-956593e9c305",
+      "name": "Get Voice Message",
+      "webhookId": "404d9669-b00b-4485-b618-b693216a7dbb",
+      "credentials": {
+        "telegramApi": {
+          "id": "z13XcjtVbGlFVyil",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "65df8ceb-4ffa-4d0e-9ec1-6ad543daac92",
+              "name": "user_message",
+              "value": "={{ $json.text || $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -100,
+        -1900
+      ],
+      "id": "e7273914-f3c0-4d1f-a39e-51764a0199ba",
+      "name": "User Message"
+    },
+    {
+      "parameters": {
+        "content": "## Trigger",
+        "height": 660,
+        "width": 200,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        -2180
+      ],
+      "id": "ef1215b6-8c9a-459d-b0c6-4f7070242cf8",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Reply Agent",
+        "height": 660,
+        "width": 1140,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -2180
+      ],
+      "id": "f7ef586a-a87f-4c26-a5d7-042f6e1c04a7",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Marketing AI Agent",
+        "height": 660,
+        "width": 580
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        60,
+        -2180
+      ],
+      "id": "66249eb9-ba0f-4b81-b4c5-e4745007b8c0",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('Ultimate Marketing AI').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1360,
+        -1720
+      ],
+      "id": "af0c9dc3-2775-41b0-88af-cfef8e48039a",
+      "name": "Send a text message2",
+      "webhookId": "40fdc7a4-c30c-414c-ae79-0f8721ab5e91",
+      "credentials": {
+        "telegramApi": {
+          "id": "z13XcjtVbGlFVyil",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "This tool creates images from text descriptions using artificial intelligence. You provide a prompt, and it generates an image based on that prompt, then returns a URL where you can access the image.\nHow It Works\nInput: You provide a text prompt describing the image you want\nOutput: You receive an image_url that links directly to your generated image",
+        "workflowId": {
+          "__rl": true,
+          "value": "u6ztCk4f4LZYXXa6",
+          "mode": "list",
+          "cachedResultName": "Live Automations — Sub - Image AI"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('prompt', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "prompt"
+          ],
+          "schema": [
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        420,
+        -980
+      ],
+      "id": "601c5f8b-92ad-49ab-b420-2e1fa4259089",
+      "name": "Create Image"
+    },
+    {
+      "parameters": {
+        "name": "VEO3_GENERATOR",
+        "description": "Inputs:\n• Type — Defines the video style: ASMR, Selfie Style Vlogger, Street Interview, or Cinematic\n• Description — A short scene or subject (e.g. “glass strawberry” or “stormtrooper in Imperial Transport”)\n• First Frame (optional): Enter an image URL to use as the video’s first frame when animating an image. Leave blank to generate the video from text only.\n\nWhat It Does:\nThis tool generates VEO3 videos tailored to the selected video type. It applies specific narrative and stylistic structures for each format:\n\n• ASMR — Creates macro-focused, sensory-rich slicing scenes with meditative sound cues\n• Selfie Style Vlogger — Builds first-person vlogs with direct speech, handheld framing, and ambient detail\n• Street Interview — Simulates news-style interviews with dialogue, environmental texture, and dynamic reactions\n• Cinematic — Produces filmic scenes with motion direction, mood, and immersive action/dialogue\n\nSpeech Limit:\nSpoken lines are kept short, around 18 words per speaker max, to ensure natural pacing in 8 second scenes.\n\nExecution Warning:\nThis action should only execute once. It consumes credits even on failure, so if an error occurs, return the error without retrying.\n\nOutput:\n• video_view_url – a shareable link to view the video in a browser (Google Drive preview)\n• video_download_url – a direct link to download the video file. This is used if you need to provide the video to another service.\n• prompt - the prompt that was used to generate this video",
+        "workflowId": {
+          "__rl": true,
+          "value": "gVIYK9gY7wlZXBMJ",
+          "mode": "list",
+          "cachedResultName": "Live Automations — Sub - VEO3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Type', ``, 'string') }}",
+            "Description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+            "First Frame (Optional)": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('First_Frame__Optional_', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "First Frame (Optional)",
+              "displayName": "First Frame (Optional)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        600,
+        -980
+      ],
+      "id": "ec48d59a-b5e9-43b6-8c65-e504c196d50a",
+      "name": "Create Video"
+    },
+    {
+      "parameters": {
+        "content": "## Input: Voice & Text",
+        "height": 660,
+        "width": 720,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        -2180
+      ],
+      "id": "2452b68e-ac2e-41ec-9cda-769a2908ea11",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a classifier that reads an assistant’s reply and decides if it contains a \"video\", an \"image\", or only \"text\".  \n\nProvide downloadable video / image file under file_url.\n\nResponse:\n\n {{ $json.output }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        780,
+        -1900
+      ],
+      "id": "a0debd49-c0e3-424e-9028-b8d2d38ef064",
+      "name": "Response Handler"
+    },
+    {
+      "parameters": {
+        "content": "## Videos",
+        "height": 300,
+        "width": 170,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -1100
+      ],
+      "id": "1cee06b6-7fb9-48f3-8399-676384c7a1be",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## Tools",
+        "height": 80,
+        "width": 540,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        380,
+        -1200
+      ],
+      "id": "3574c3e1-bcc6-4c45-81cf-de015b38d02c",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## Blog Posts",
+        "height": 300,
+        "width": 160,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        760,
+        -1100
+      ],
+      "id": "5bac5f3d-467a-4e7c-8ab1-a881df21fd79",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "description": "This tool, turns a simple prompt into a full markdown blog post.\n\nWhat it does\n• Takes your topic or idea and drafts a structured article\n• Uses simple 6th–8th-grade English and focuses on future impact  ￼\n\nFormats with:\n• H2 headings for Introduction, Main Content, Conclusion\n• H3 sub-headings under Main Content\n• Bullet lists using •\n• Word-count targets (300 – 2 500 words)\n\nInput\n• prompt (string) – the topic or angle you want the post to cover  ￼\n\nOutput\n• text (string) – the complete blog post in markdown, ready to publish\n\nJust supply the prompt and you’ll get back a polished, guideline-compliant post.",
+        "workflowId": {
+          "__rl": true,
+          "value": "xJQDv0qpSmbtT2pg",
+          "mode": "list",
+          "cachedResultName": "Live Automations — Sub - Blog Posts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('prompt', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "prompt"
+          ],
+          "schema": [
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        -980
+      ],
+      "id": "419b5fb9-fca5-4959-9f78-f47e28c5e68c",
+      "name": "Blog Posts"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Ultimate Marketing AI",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ultimate Marketing AI": {
+      "main": [
+        [
+          {
+            "node": "Response Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Videos": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Marketing AI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BRAIN: ChatGPT": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ultimate Marketing AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Response Handler",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Response Handler",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a video": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Images": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Marketing AI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a photo message": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Type": {
+      "main": [
+        [
+          {
+            "node": "User Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Voice Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Voice Message": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "User Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Message": {
+      "main": [
+        [
+          {
+            "node": "Ultimate Marketing AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        []
+      ]
+    },
+    "Create Image": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Marketing AI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Video": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Marketing AI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response Handler": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog Posts": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Marketing AI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ea9bf420-2042-4a5b-bc7f-c6852c368b98",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "174f90e5c5e962799807802a3ab96d36b1625a1feee59dc97f35bf5854d1bd8a"
+  },
+  "id": "kgRZpK3Y1JSEQjN7",
+  "tags": []
+}

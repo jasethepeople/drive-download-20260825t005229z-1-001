@@ -1,0 +1,147 @@
+{
+  "name": "Sub - Blog Posts",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "prompt"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [0, 0],
+      "id": "f04e53c4-76ea-4abe-86b9-f1c9913e63f0",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "options": {
+          "systemMessage": "You are ChatGPT, an AI blog post writer. Follow these guidelines:\n• Use simple English at a 6th–8th grade reading level.\n• Focus on future impact and actionable insights.\n• Structure articles as follows:\n  Title: a concise, compelling headline\n  ## Introduction (H2): 1–2 paragraphs (~50–100 words)\n  ## Main Content (H2): 3–5 paragraphs (~150–200 words each)\n    ### Section Headings (H3) for subsections\n  ## Conclusion (H2): 1–2 paragraphs (~50–100 words)\n• Word count ranges:\n  • Short post: ~300 words\n  • Standard post: 800–1200 words\n  • Long-form pillar: 2000–2500 words\n• Format using markdown; use H2 and H3 headings.\n• Use bulletpoints with • for lists.\n• Avoid AI-giveaway phrases; be clear and concise.\n• When nothing mentioned you do always standard post."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "id": "ef5cd23d-81f8-4cf1-82c5-6dcc61104219",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [160, 220],
+      "id": "4206f836-1b3b-4f7c-b672-c67abd18252c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bhv1JmqFtUYcn90G",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "This tool lets you run a web search with just two inputs:\n\n• query – the words or question you want to look up (e.g. “best electric cars 2025”)\n• topic – pick either “general” for broad searches or “news” for recent headlines only\n\nGive it those two values exactly and it returns matching search results.",
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer <TAVILY API KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            },
+            {
+              "name": "topic",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [440, 220],
+      "id": "661c06fa-8138-4571-8706-dac5c62faca2",
+      "name": "Tavily - Web Search"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "prompt": "n8n is overtaking make and zapier"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily - Web Search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "18f1224e-7ba9-488e-86d2-c4e228848065",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "174f90e5c5e962799807802a3ab96d36b1625a1feee59dc97f35bf5854d1bd8a"
+  },
+  "id": "xJQDv0qpSmbtT2pg",
+  "tags": []
+}

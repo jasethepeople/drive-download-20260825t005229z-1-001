@@ -1,0 +1,291 @@
+{
+  "name": "Sub - Image AI",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "prompt"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -100,
+        0
+      ],
+      "id": "791b3d92-53a2-4630-a6f2-20ae5f253150",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "model": "gpt-image-1",
+        "prompt": "={{ $json.prompt }}",
+        "options": {
+          "size": "1024x1024"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        100,
+        0
+      ],
+      "id": "fdae91d4-3713-4b03-b8b6-611dbbfdbaa7",
+      "name": "Generate an image",
+      "credentials": {
+        "openAiApi": {
+          "id": "bhv1JmqFtUYcn90G",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/u/0/folders/1BGtu7HJG3M0PWw0eK52bHeI6PM3L1p7_",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        300,
+        0
+      ],
+      "id": "a1d386e5-3ec5-486d-a424-fa695258ac38",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SRQ96EONZkJ1yTeb",
+          "name": "Google Drive account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.webViewLink }}",
+          "mode": "url"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        480,
+        0
+      ],
+      "id": "b3f3875b-174c-4fec-b386-8342cab0a0ef",
+      "name": "Share file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SRQ96EONZkJ1yTeb",
+          "name": "Google Drive account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ac4cba7f-1d61-468a-8d56-c8ef9550e008",
+              "name": "image_url",
+              "value": "={{ $('Upload file').item.json.webContentLink }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        0
+      ],
+      "id": "abfee6fe-1fa9-4198-a4b0-1c88638e7117",
+      "name": "return value"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1qRJ0pXfpSn0g0SVOlIvNAYdNNNRFCGJKQNAYFxNXedg/edit?gid=916064660#gid=916064660",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 916064660,
+          "mode": "list",
+          "cachedResultName": "images",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qRJ0pXfpSn0g0SVOlIvNAYdNNNRFCGJKQNAYFxNXedg/edit#gid=916064660"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $now }}",
+            "Prompt": "={{ $('When Executed by Another Workflow').item.json.prompt }}",
+            "Image": "={{ $('Upload file').item.json.webContentLink }}",
+            "Type": "generated"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Prompt",
+              "displayName": "Prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image",
+              "displayName": "Image",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        680,
+        0
+      ],
+      "id": "61b71974-0665-47db-af72-eb78ace00483",
+      "name": "Save Image",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8APu95pmPCpPW3cw",
+          "name": "Google Sheets account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "prompt": "create a image of a cartoon teddy bear sitting in a ferrari"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Share file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Share file": {
+      "main": [
+        [
+          {
+            "node": "Save Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Image": {
+      "main": [
+        [
+          {
+            "node": "return value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8ece4eed-a0b9-4444-97ae-08a660aa29fc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "174f90e5c5e962799807802a3ab96d36b1625a1feee59dc97f35bf5854d1bd8a"
+  },
+  "id": "u6ztCk4f4LZYXXa6",
+  "tags": []
+}

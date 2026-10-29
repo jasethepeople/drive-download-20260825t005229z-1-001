@@ -1,0 +1,643 @@
+{
+  "name": "Sub - VEO3",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://kieai.erweima.ai/api/v1/veo/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <KIE AI API KEY>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $json.message.content }}"
+            },
+            {
+              "name": "model",
+              "value": "veo3_fast"
+            },
+            {
+              "name": "imageUrls",
+              "value": "={{ [ $('VEO3 Subworkflow').item.json['First Frame (Optional)'] || null ] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1240, 420],
+      "id": "638a57cb-b120-4f9b-a432-3c472d2e7571",
+      "name": "Create Video"
+    },
+    {
+      "parameters": {
+        "url": "https://kieai.erweima.ai/api/v1/veo/record-info",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer <KIE AI API KEY>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1420, 420],
+      "id": "5e03468b-a494-4045-8b9a-9f345b2b0f7e",
+      "name": "Get Video"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b709f239-f219-4d4a-83f3-9f88ab460bdc",
+                    "leftValue": "={{ $json.data.errorCode }}",
+                    "rightValue": 300,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "error"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4f7daa50-bfb3-4993-9cad-830f0fbf5c51",
+                    "leftValue": "={{ $('Create Video').item.json.code }}",
+                    "rightValue": 402,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "No enough credits"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "bea172d1-bb13-4d95-99b0-9340b9c59e9f",
+                    "leftValue": "={{ $json.data.response }}",
+                    "rightValue": "succeeded",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ready"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c9b861ca-6603-4333-8e7a-82d5ab056032",
+                    "leftValue": "={{ $json.data.response }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "processing"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1600, 420],
+      "id": "cc10833f-5e1a-46a6-8e9a-5e33e2e12dbd",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1840, 660],
+      "id": "de3a758a-e8c0-4869-85ac-6e8899ec42e9",
+      "name": "Wait",
+      "webhookId": "786fe389-8f47-4b03-bc3e-b83d71d3a9dc"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.response.resultUrls[0] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1840, 500],
+      "id": "5146ae2c-8425-4213-822e-0433775e95f6",
+      "name": "Download Video"
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/folders/1GAU-hdeGxr5Lj9h5GnRfbDfkF9kDo3WF",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2080, 500],
+      "id": "3083aa75-202a-4a34-bdc2-de10b0c09030",
+      "name": "Upload Video",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SRQ96EONZkJ1yTeb",
+          "name": "Google Drive account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Create Video",
+        "height": 520,
+        "width": 860,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1140, 360],
+      "id": "d598d552-c568-4cee-b7ed-da6eb0290987",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Type: {{ $json.Type }}\nDescription: {{ $json.Description }}\n\nYou are an AI prompt engineer. Input variables:\n• video_type: one of ASMR, Selfie Style Vlogger, Street Interview, Cinematic\n• description: a brief subject or scene (for example glass strawberry or stormtrooper in Imperial Transport)\n\nBased on video_type, apply the corresponding structure:\n\nIf ASMR:\n• Begin with “A hyper realistic AI generated ASMR video shot in extreme macro perspective.”\n• Describe a razor sharp knife slowly slicing through [description]\n• Detail the resting surface, lighting, pacing and the crisp, clean sounds in a silent meditative space\n• End with the sliced piece dropping gently and the overall soothing rhythm\n\nIf Selfie Style Vlogger:\n• Begin with “A selfie video of a [description].”\n• Note camera held at arm’s length with the arm visible\n• Specify YouTube vlog style action, tone of voice and exact speech in quotes\n• List ambient sounds and end with “No subtitles.”\n\nIf Street Interview:\n• Begin with “A street interview style video.”\n• Describe an over-the-shoulder shot of a reporter with a mic and the [description] subject\n• Include reporter’s line and subject’s reply in quotes\n• Set the background scene and end with “No subtitles.”\n\nIf Cinematic:\n• Begin with “Cinematic realistic [choose camera motion or shot type] of [description].”\n• Detail background, action, time of day, style and ambience\n• Add dialogue or voice-over in quotes, list sound effects and music, and end with “No subtitles.”\n\nReplace placeholders with inputs. Keep language vivid, sensory and true to the chosen video type.\n\nASMR – Opaque Gold Bar\nA hyper realistic AI generated ASMR video shot in extreme macro perspective.  \nA razor sharp knife slowly slices through an opaque gold bar in its original gold color resting on a rustic wooden cutting board bathed in warm cinematic lighting.  \nEach intentional cut delivers a deeply satisfying ASMR audio experience, crisp, metallic and clean echoing in an otherwise silent meditative space.  \nThe sliced gold drops gently to the cutting board. The overall pacing is slow and soothing, crafting a tranquil ASMR experience. \n\nSelfie Style Vlogger – Stormtrooper on Tatooine\nA selfie video of a Stormtrooper in an Imperial Transport with his squadmate Greg visible beside him.  \nHe holds the camera at arm’s length with his arm clearly visible in the frame.  \nThe style is YouTube vlog like. He glances at Greg then back at the camera.  \nHe says in a sarcastic, resigned tone: \"Alright, this is it. We’re shipping out for Tatooine. High heat, endless sand, locals that hate us. Sounds amazing.\"  \nSounds: ship engine humming, armor clanking, frantic beeping from the nav-computer.  \nNo subtitles. \n\nStreet Interview – Colombian Man and Pothole\nA street interview style video.  \nOver the shoulder shot of a female reporter holding a microphone with a news logo.  \nAn enthusiastic street vendor is giving an interview. Background: a dusty, uneven street in a vibrant Colombian town dominated by a huge muddy pothole filled with water.  \nReporter says: \"The community is hopeful this hazard will finally be addressed. You agree?\"  \nThe Street Vendor says with a cheerful Colombian accent: \"¡Claro que si! This hole has been a nightmare for too long. Today is a good day!\"  \nAction: Just as he finishes speaking, the wheelchair in the background hits the edge of the massive pothole and tumbles in with a significant splash. The reporter and the vendor both turn with expressions of shock.  \nNo subtitles. \n\nCinematic – Gorilla Driving a Car\nCinematic realistic tracking shot of a classic Porsche speeding along a winding sun drenched coastal highway.  \nCamera flies inside showing a gorilla dressed in a dusty suede jacket layered over a simple gray peacoat gripping the steering wheel with intense focus.  \nHe glances in the rearview mirror with a flicker of urgency in his dark intelligent eyes as he expertly navigates sharp turns.  \nThe vast churning ocean stretches out beside him its distant roar undercut by the powerful growl of the engine creating a scene of determined escape against a backdrop of rugged contemplative beauty.  \nNo subtitles. \n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [1440, 120],
+      "id": "6f396f86-262e-436c-a8d2-440250b20583",
+      "name": "Ideas AI",
+      "credentials": {
+        "openAiApi": {
+          "id": "bhv1JmqFtUYcn90G",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Generate Idea for Video",
+        "height": 320,
+        "width": 860,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1140, 20],
+      "id": "13844401-480d-4755-a2a5-9229fa3be08e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Save Video & Publish",
+        "height": 520,
+        "width": 380,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2020, 360],
+      "id": "1fd4d8df-5971-4879-8886-4a03759e6e1d",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Video Assistant",
+        "height": 320,
+        "width": 260,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [860, 20],
+      "id": "091192e5-1ed1-43a2-8bf8-b6fcdbe56ceb",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Type"
+            },
+            {
+              "name": "Description"
+            },
+            {
+              "name": "First Frame (Optional)"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [920, 120],
+      "id": "5d4822da-bbbc-44aa-b289-42a369771918",
+      "name": "VEO3 Subworkflow",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2240, 500],
+      "id": "2cc113c6-ac9d-4f98-984c-b3e1166eb860",
+      "name": "Share File",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "SRQ96EONZkJ1yTeb",
+          "name": "Google Drive account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1qRJ0pXfpSn0g0SVOlIvNAYdNNNRFCGJKQNAYFxNXedg/edit?gid=236067750#gid=236067750",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "videos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qRJ0pXfpSn0g0SVOlIvNAYdNNNRFCGJKQNAYFxNXedg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $now }}",
+            "Prompt": "={{ $('Ideas AI').item.json.message.content }}",
+            "Video": "={{ $('Upload Video').item.json.webContentLink }}",
+            "Type": "generated"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Prompt",
+              "displayName": "Prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Video",
+              "displayName": "Video",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [2440, 500],
+      "id": "3f32a6e0-9714-47f3-b924-d1b1bd97f210",
+      "name": "Save Video",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "8APu95pmPCpPW3cw",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2c732f7-1be0-44ba-aece-29f939b1db37",
+              "name": "video_view_url",
+              "value": "={{ $('Upload Video').item.json.webViewLink }}",
+              "type": "string"
+            },
+            {
+              "id": "fe788ef3-bb76-4ed9-8db2-dc1618b7d1db",
+              "name": "video_download_url",
+              "value": "={{ $('Upload Video').item.json.webContentLink }}",
+              "type": "string"
+            },
+            {
+              "id": "c6d868f6-0ae9-4866-9315-7a9fc2416373",
+              "name": "prompt",
+              "value": "={{ $('Ideas AI').item.json.message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2620, 500],
+      "id": "e6e30560-fb1f-4035-9d12-9a8e0b0d0565",
+      "name": "return value"
+    }
+  ],
+  "pinData": {
+    "Ideas AI": [
+      {
+        "json": {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Title: ASMR Cutting Glass Apple 🍎✨\n\nDescription: \n\nWelcome to our serene ASMR experience, where everyday stress melts away and tranquility takes over. In this video, we bring you the mesmerizing art of cutting a glass apple. \n\n🔮 Immerse yourself in the soft, hypnotic sounds as our skilled artist delicately slices through this beautiful, fragile creation. Listen closely to the gentle clinks and tinkles, providing a unique symphony of glassy whispers. Each slice reveals a new facet of glowing colors, echoing the soothing whispers of an autumn breeze.\n\n👂 Perfect for relaxation, sleep, or focused meditation, this ASMR session promises a unique auditory journey. Feel the tension in your body gradually dissipate as you watch the glass reflections dance and shimmer. \n\n🍏 Whether you're here to unwind after a long day, enhance concentration, or simply enjoy the visual elegance, our glass apple cutting video invites you into a world of calm and beauty.\n\n🔔 Subscribe to the channel and tap the bell icon so you don't miss our next ASMR adventure. Share your experience in the comments; we love hearing how our videos make you feel!\n\nSettle in, get comfy, and let the enchanting sounds of the glass apple cutting lull you into peace.",
+            "refusal": null,
+            "annotations": []
+          },
+          "logprobs": null,
+          "finish_reason": "stop"
+        }
+      }
+    ],
+    "VEO3 Subworkflow": [
+      {
+        "json": {
+          "Type": "ASMR",
+          "Description": "Glass Apple",
+          "First Frame (Optional)": "https://"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Create Video": {
+      "main": [
+        [
+          {
+            "node": "Get Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [],
+        [],
+        [
+          {
+            "node": "Download Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video": {
+      "main": [
+        [
+          {
+            "node": "Upload Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ideas AI": {
+      "main": [
+        [
+          {
+            "node": "Create Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VEO3 Subworkflow": {
+      "main": [
+        [
+          {
+            "node": "Ideas AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Video": {
+      "main": [
+        [
+          {
+            "node": "Share File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Share File": {
+      "main": [
+        [
+          {
+            "node": "Save Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Video": {
+      "main": [
+        [
+          {
+            "node": "return value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9743b069-f2c4-4641-9d85-7784c04d58df",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "174f90e5c5e962799807802a3ab96d36b1625a1feee59dc97f35bf5854d1bd8a"
+  },
+  "id": "gVIYK9gY7wlZXBMJ",
+  "tags": []
+}

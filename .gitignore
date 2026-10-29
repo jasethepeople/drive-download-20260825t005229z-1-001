@@ -1,0 +1,7 @@
+.env
+*.pem
+*.key
+client_secret*
+node_modules/
+SUNLU T3 Manul.pdf
+The Last Tread by James Bullock.pdf
